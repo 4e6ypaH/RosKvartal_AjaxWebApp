@@ -12,10 +12,23 @@ namespace AjaxWebApp.Controllers
         BookContext db = new BookContext();
         public ActionResult Index()
         {
+            ViewBag.Authors = db.Books.Select(s => s.Author).Distinct();
             return View();
         }
 
-        [HttpPost]
+        public ActionResult BestBook()
+        {
+            Book book = db.Books.First();
+            return PartialView(book);
+        }
+
+        public JsonResult JsonSearch(string name)
+        {
+            var jsondata = db.Books.Where(a => a.Author.Contains(name)).ToList();
+            return Json(jsondata, JsonRequestBehavior.AllowGet);
+        }
+
+        //[HttpPost]
         public ActionResult BookSearch(string name)
         {
             var allbooks = db.Books.Where(a => a.Author.Contains(name)).ToList();

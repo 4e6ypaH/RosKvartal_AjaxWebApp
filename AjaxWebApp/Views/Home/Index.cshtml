@@ -2,9 +2,44 @@
     ViewBag.Title = "Home Page";
 }
 
-@using (Ajax.BeginForm("BookSearch", new AjaxOptions { UpdateTargetId = "results" }))
+@using (Ajax.BeginForm("JsonSearch", new AjaxOptions
+    { 
+        OnSuccess = "OnSuccess"
+        
+        //LoadingElementId = "loading",
+        //LoadingElementDuration = 800
+    }))
+    {
+        <input type="text" name="name" />
+        <input type="submit" value="Поиск" />
+    }
+<div id="results"></div>
+
+@*<input type="text" id="name" name="name" />
+<input type="submit" id="submit" value="Поиск" />
+
+@foreach (string s in ViewBag.Authors)
 {
-    <input type="text" name="name" />
-    <input type="submit" value="Поиск" />
-}
-    <div id="results"></div>
+    @Ajax.ActionLink(s, "BookSearch", new { name = s }, new AjaxOptions { UpdateTargetId = "results" })
+}*@
+
+@section scripts {
+    <script type="text/javascript">
+        function OnSuccess(data) {
+            var results = $('#results'); //получаем нужный элемент
+            results.empty(); // очищаем элемент
+            for (var i = 0; i < data.length; i++) {
+                results.append('<p>' + data[i].Name + '</p>'); // добавляем данные в список
+            }
+        }
+
+        $(document).ready(function () {
+            $('#submit').click(function (e) {
+                e.preventDefault();
+                var name = $('#name').val();
+                name = encodeURIComponent(name);
+                $('#reuslts').load('@Url.Action("BookSearch")?name=' + name);
+            });
+        });
+    </script>
+    }
